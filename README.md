@@ -163,6 +163,6 @@ MIT
 
 ## Support
 
-- 📧 Email: support@contacted.ai
+- 📧 Email: support@contacted.io
 - 🐛 Issues: [GitHub Issues](https://github.com/LawrenceGB/contacted-python/issues)
 - 📖 Documentation: [contacted.gitbook.io](https://contacted.gitbook.io)
