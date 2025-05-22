@@ -1,4 +1,4 @@
-# ContactedAI Python SDK
+# Contacted Python SDK
 
 Official Python SDK for the Contacted API.
 
