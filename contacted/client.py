@@ -33,7 +33,7 @@ class ContactedAI:
         # Setup session with default headers
         self.session = requests.Session()
         self.session.headers.update({
-            'X-API-Key': self.api_key,
+            'Authorization': f'Bearer ${self.api_key}',
             'Content-Type': 'application/json',
             'User-Agent': 'contacted-python/1.0.0'
         })

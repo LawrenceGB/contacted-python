@@ -1,0 +1,7 @@
+.idea/
+/dist/
+/contacted.egg-info/
+/pyproject.toml
+/MANIFEST.in
+/deployInstructions.txt
+/openapi.yaml
