@@ -1,4 +1,4 @@
-# Contacted Python SDK
+# Contacted Python API Library
 
 Official Python SDK for the Contacted API.
 
@@ -27,6 +27,7 @@ contacted = ContactedAI(api_key='your-api-key-here')
 
 # Send a message
 result = contacted.send({
+    'subject': 'Thank you for signing up with Example',
     'from': 'sender@example.com',
     'to': 'receiver@example.com',
     'prompt': 'Generate a personalized welcome email',
@@ -50,6 +51,7 @@ from typing import Dict, Any
 contacted = ContactedAI(api_key='your-api-key-here')
 
 options: Dict[str, Any] = {
+    'subject': 'Email subject line',
     'from': 'sender@example.com',
     'to': 'receiver@example.com',
     'prompt': 'Generate email content',
@@ -75,12 +77,14 @@ Creates a new ContactedAI client instance.
 Send a message through the ContactedAI API.
 
 **Parameters:**
+- `subject` (string, required): Email subject (2-256 characters)
 - `from` (str, required): Valid sender email address
 - `to` (str, required): Valid receiver email address
 - `prompt` (str, required): AI prompt (10-250 characters)
 - `data` (dict, optional): Additional data for personalization
 
 **Validation Rules:**
+- Subject must be 2-256 characters
 - Email addresses must be valid format
 - Prompt must be 10-250 characters
 - Data keys cannot contain spaces
@@ -103,6 +107,7 @@ The SDK provides detailed error messages for validation and API errors:
 ```python
 try:
     contacted.send({
+        'subject': 'test error',
         'from': 'invalid-email',
         'to': 'user@example.com',
         'prompt': 'short'
@@ -122,6 +127,7 @@ import os
 contacted = ContactedAI(api_key=os.getenv('CONTACTED_API_KEY'))
 
 result = contacted.send({
+    'subject': 'A warm welcome from my service',
     'from': 'noreply@myapp.com',
     'to': 'user@example.com', 
     'prompt': 'Create a welcome email for a new premium user',

@@ -53,6 +53,32 @@ def is_valid_email(email: str) -> bool:
     return bool(email_regex.match(email))
 
 
+def validate_subject(subject: Any) -> None:
+    """
+    Validates subject according to backend schema
+
+    Args:
+        subject: Subject to validate
+
+    Raises:
+        ValueError: If validation fails
+    """
+    # Check if subject exists (required)
+    if subject is None:
+        raise ValueError("Subject is required")
+
+    # Check if subject is a string
+    if not isinstance(subject, str):
+        raise ValueError("Subject must be a string")
+
+    # Check length (2-256 characters)
+    if len(subject) < 2:
+        raise ValueError("Subject must be at least 2 characters long")
+
+    if len(subject) > 256:
+        raise ValueError("Subject must be no more than 256 characters long")
+
+
 def validate_prompt(prompt: Any) -> None:
     """
     Validates prompt according to backend schema
@@ -151,6 +177,7 @@ def validate_send_options(options: Any) -> None:
     if not options or not isinstance(options, dict):
         raise ValueError("Send options must be a dictionary")
 
+    subject = options.get('subject')
     from_email = options.get('from')
     to_email = options.get('to')
     prompt = options.get('prompt')
@@ -158,6 +185,9 @@ def validate_send_options(options: Any) -> None:
 
     # Validate emails
     validate_emails(from_email, to_email)
+
+    # Validate subject
+    validate_subject(subject)
 
     # Validate prompt
     validate_prompt(prompt)

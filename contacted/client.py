@@ -44,6 +44,7 @@ class ContactedAI:
 
         Args:
             options (dict): Send options containing:
+                - subject (str): Email subject line (2-256 characters)
                 - from (str): Sender email address
                 - to (str): Receiver email address
                 - prompt (str): AI prompt (10-250 characters)
@@ -60,6 +61,7 @@ class ContactedAI:
         validate_send_options(options)
 
         payload = {
+            'subject': options['subject'],
             'from': options['from'],
             'to': options['to'],
             'prompt': options['prompt'],

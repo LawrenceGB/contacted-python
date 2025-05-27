@@ -9,6 +9,7 @@ from contacted.validation import (
     validate_prompt,
     validate_data,
     validate_emails,
+    validate_subject,
     is_valid_email
 )
 
@@ -53,6 +54,52 @@ class TestEmailValidation:
 
         with pytest.raises(ValueError, match='Invalid "to" email address format'):
             validate_emails('test@example.com', 'invalid-email')
+
+
+class TestSubjectValidation:
+    """Test subject validation functions"""
+
+    def test_should_validate_subject_is_required(self):
+        """Test subject is required"""
+        with pytest.raises(ValueError, match='Subject is required'):
+            validate_subject(None)
+
+    def test_should_validate_subject_is_string(self):
+        """Test subject must be string"""
+        with pytest.raises(ValueError, match='Subject must be a string'):
+            validate_subject(123)
+
+        with pytest.raises(ValueError, match='Subject must be a string'):
+            validate_subject({})
+
+        with pytest.raises(ValueError, match='Subject must be a string'):
+            validate_subject([])
+
+        with pytest.raises(ValueError, match='Subject must be a string'):
+            validate_subject(True)
+
+    def test_should_validate_subject_length(self):
+        """Test subject length validation"""
+        with pytest.raises(ValueError, match='Subject must be at least 2 characters long'):
+            validate_subject('a')
+
+        with pytest.raises(ValueError, match='Subject must be at least 2 characters long'):
+            validate_subject('')
+
+        long_subject = 'a' * 257
+        with pytest.raises(ValueError, match='Subject must be no more than 256 characters long'):
+            validate_subject(long_subject)
+
+    def test_should_accept_valid_subjects(self):
+        """Test valid subjects are accepted"""
+        # These should not raise any exception
+        validate_subject('Hi')
+        validate_subject('Hello there')
+        validate_subject('Meeting Tomorrow')
+
+        # Test exactly at boundaries
+        validate_subject('ab')  # exactly 2 chars
+        validate_subject('a' * 256)  # exactly 256 chars
 
 
 class TestPromptValidation:
@@ -139,6 +186,7 @@ class TestCompleteSendOptionsValidation:
         self.valid_options = {
             'from': 'sender@example.com',
             'to': 'receiver@example.com',
+            'subject': 'Meeting Tomorrow',
             'prompt': 'This is a valid prompt with enough characters',
             'data': {
                 'name': 'John',
@@ -151,6 +199,7 @@ class TestCompleteSendOptionsValidation:
         valid_options = {
             'from': 'sender@example.com',
             'to': 'receiver@example.com',
+            'subject': 'Meeting Tomorrow',
             'prompt': 'This is a valid prompt with enough characters',
             'data': {
                 'name': 'John',
@@ -160,11 +209,55 @@ class TestCompleteSendOptionsValidation:
         # This should not raise any exception
         validate_send_options(valid_options)
 
+    def test_should_fail_on_missing_subject(self):
+        """Test missing subject validation"""
+        options = {
+            'from': 'sender@example.com',
+            'to': 'receiver@example.com',
+            'prompt': 'This is a valid prompt with enough characters'
+        }
+        with pytest.raises(ValueError, match='Subject is required'):
+            validate_send_options(options)
+
+    def test_should_fail_on_invalid_subject_type(self):
+        """Test invalid subject type validation"""
+        options = {
+            'from': 'sender@example.com',
+            'to': 'receiver@example.com',
+            'subject': 123,
+            'prompt': 'This is a valid prompt with enough characters'
+        }
+        with pytest.raises(ValueError, match='Subject must be a string'):
+            validate_send_options(options)
+
+    def test_should_fail_on_subject_too_short(self):
+        """Test subject too short validation"""
+        options = {
+            'from': 'sender@example.com',
+            'to': 'receiver@example.com',
+            'subject': 'a',
+            'prompt': 'This is a valid prompt with enough characters'
+        }
+        with pytest.raises(ValueError, match='Subject must be at least 2 characters long'):
+            validate_send_options(options)
+
+    def test_should_fail_on_subject_too_long(self):
+        """Test subject too long validation"""
+        options = {
+            'from': 'sender@example.com',
+            'to': 'receiver@example.com',
+            'subject': 'a' * 257,
+            'prompt': 'This is a valid prompt with enough characters'
+        }
+        with pytest.raises(ValueError, match='Subject must be no more than 256 characters long'):
+            validate_send_options(options)
+
     def test_should_fail_on_invalid_email(self):
         """Test invalid email validation"""
         options = {
             'from': 'invalid-email',
             'to': 'receiver@example.com',
+            'subject': 'Meeting Tomorrow',
             'prompt': 'This is a valid prompt with enough characters'
         }
         with pytest.raises(ValueError, match='Invalid "from" email address format'):
@@ -175,6 +268,7 @@ class TestCompleteSendOptionsValidation:
         options = {
             'from': 'sender@example.com',
             'to': 'receiver@example.com',
+            'subject': 'Meeting Tomorrow',
             'prompt': 'short'
         }
         with pytest.raises(ValueError, match='Prompt must be at least 10 characters long'):
@@ -185,6 +279,7 @@ class TestCompleteSendOptionsValidation:
         options = {
             'from': 'sender@example.com',
             'to': 'receiver@example.com',
+            'subject': 'Meeting Tomorrow',
             'prompt': 'This is a valid prompt with enough characters',
             'data': {'key with space': 'value'}
         }
@@ -196,6 +291,29 @@ class TestCompleteSendOptionsValidation:
         options = {
             'from': 'sender@example.com',
             'to': 'receiver@example.com',
+            'subject': 'Meeting Tomorrow',
+            'prompt': 'This is a valid prompt with enough characters'
+        }
+        # This should not raise any exception
+        validate_send_options(options)
+
+    def test_should_accept_minimum_valid_subject(self):
+        """Test minimum valid subject"""
+        options = {
+            'from': 'sender@example.com',
+            'to': 'receiver@example.com',
+            'subject': 'Hi',
+            'prompt': 'This is a valid prompt with enough characters'
+        }
+        # This should not raise any exception
+        validate_send_options(options)
+
+    def test_should_accept_maximum_valid_subject(self):
+        """Test maximum valid subject"""
+        options = {
+            'from': 'sender@example.com',
+            'to': 'receiver@example.com',
+            'subject': 'a' * 256,
             'prompt': 'This is a valid prompt with enough characters'
         }
         # This should not raise any exception
