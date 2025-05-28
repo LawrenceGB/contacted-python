@@ -98,6 +98,59 @@ class ContactedAI:
         except requests.exceptions.RequestException as e:
             raise ValueError(f"Request error: {str(e)}")
 
+    def get_message_status(self, message_id: str) -> Dict[str, Any]:
+        """
+        Get the status of a sent message
+
+        Args:
+            message_id (str): The unique message ID returned from send()
+
+        Returns:
+            dict: Message status information containing:
+                - id (str): Message ID
+                - status (str): Current status (queued, sent, failed)
+                - message (str): Human-readable status message
+                - created_at (str): Message creation timestamp
+                - updated_at (str): Last status update timestamp
+                - sent_at (str, optional): Delivery timestamp (when status is 'sent')
+                - error_reason (str, optional): Error description (when status is 'failed')
+
+        Raises:
+            ValueError: If message_id is invalid or API request fails
+            requests.RequestException: If API request fails
+        """
+        if not message_id:
+            raise ValueError("Message ID is required")
+
+        if not message_id.startswith('msg_'):
+            raise ValueError("Invalid message ID format. Must start with 'msg_'")
+
+        try:
+            response = self.session.get(
+                f"{self.base_url}/message",
+                params={'id': message_id},
+                timeout=self.timeout
+            )
+
+            # Handle different response status codes
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 404:
+                raise ValueError(f"ContactedAI API Error: Message with ID '{message_id}' not found")
+            elif response.status_code == 401:
+                raise ValueError("ContactedAI API Error: Invalid API key")
+            elif response.status_code >= 500:
+                raise ValueError("ContactedAI API Error: Server error")
+            else:
+                response.raise_for_status()
+
+        except requests.exceptions.Timeout:
+            raise ValueError("Network error: Request timeout")
+        except requests.exceptions.ConnectionError:
+            raise ValueError("Network error: Unable to reach ContactedAI API")
+        except requests.exceptions.RequestException as e:
+            raise ValueError(f"Request error: {str(e)}")
+
     def status(self) -> Dict[str, Any]:
         """
         Check API status and health

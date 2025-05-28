@@ -5,7 +5,7 @@ Official Python client for the ContactedAI API
 
 from .client import ContactedAI
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 __author__ = "ContactedAI"
 __email__ = "support@contacted.io"
 
