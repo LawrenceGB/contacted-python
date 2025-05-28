@@ -139,6 +139,8 @@ class ContactedAI:
                 raise ValueError(f"ContactedAI API Error: Message with ID '{message_id}' not found")
             elif response.status_code == 401:
                 raise ValueError("ContactedAI API Error: Invalid API key")
+            elif response.status_code == 429:
+                raise ValueError("ContactedAI API Error: Rate limit exceeded")
             elif response.status_code >= 500:
                 raise ValueError("ContactedAI API Error: Server error")
             else:
