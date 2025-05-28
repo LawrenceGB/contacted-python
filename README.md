@@ -38,6 +38,10 @@ result = contacted.send({
 })
 
 print('Message sent:', result)
+
+# Check message status
+status = contacted.get_message_status(result['id'])
+print('Message status:', status['status'])
 ```
 
 ## Type Hints Support
@@ -94,6 +98,24 @@ Send a message through the ContactedAI API.
 
 **Raises:** `ValueError` - If validation fails or API error occurs
 
+### `contacted.get_message_status(message_id)`
+
+Get the status of a sent message.
+
+**Parameters:**
+- `message_id` (str, required): The unique message ID returned from `send()`
+
+**Returns:** `dict` - Message status information containing:
+- `id` (str): Message ID
+- `status` (str): Current status (`queued`, `sent`, `failed`)
+- `message` (str): Human-readable status message
+- `created_at` (str): Message creation timestamp
+- `updated_at` (str): Last status update timestamp
+- `sent_at` (str, optional): Delivery timestamp (when status is 'sent')
+- `error_reason` (str, optional): Error description (when status is 'failed')
+
+**Raises:** `ValueError` - If message_id is invalid or API error occurs
+
 ### `contacted.status()`
 
 Check the API status and health.
@@ -139,14 +161,60 @@ result = contacted.send({
 })
 ```
 
+### Send and Track Message Status
+```python
+from contacted import ContactedAI
+import time
+
+contacted = ContactedAI(api_key='your-api-key-here')
+
+# Send message
+result = contacted.send({
+    'subject': 'Your order confirmation',
+    'from': 'orders@mystore.com',
+    'to': 'customer@example.com',
+    'prompt': 'Generate an order confirmation email',
+    'data': {
+        'order_id': '12345',
+        'total': '$99.99',
+        'delivery_date': '2024-01-20'
+    }
+})
+
+message_id = result['id']
+print(f'✅ Message queued with ID: {message_id}')
+
+# Check status
+status = contacted.get_message_status(message_id)
+print(f'📧 Status: {status["status"]} - {status["message"]}')
+
+# Poll for completion (optional)
+while status['status'] == 'queued':
+    time.sleep(2)
+    status = contacted.get_message_status(message_id)
+    print(f'📧 Status: {status["status"]}')
+
+if status['status'] == 'sent':
+    print(f'✅ Message delivered at {status["sent_at"]}')
+elif status['status'] == 'failed':
+    print(f'❌ Message failed: {status["error_reason"]}')
+```
+
 ### With Error Handling
 ```python
 try:
     result = contacted.send(options)
     print(f'✅ Email sent successfully: {result["id"]}')
+    
+    # Check status
+    status = contacted.get_message_status(result['id'])
+    print(f'📧 Current status: {status["status"]}')
+    
 except ValueError as e:
     if 'Invalid' in str(e):
         print(f'❌ Validation error: {e}')
+    elif 'not found' in str(e):
+        print(f'❌ Message not found: {e}')
     else:
         print(f'❌ API error: {e}')
 ```
