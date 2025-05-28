@@ -122,8 +122,8 @@ class ContactedAI:
         if not message_id:
             raise ValueError("Message ID is required")
 
-        if not message_id.startswith('msg_'):
-            raise ValueError("Invalid message ID format. Must start with 'msg_'")
+        if not isinstance(message_id, str):
+            raise ValueError("Message ID must be a string")
 
         try:
             response = self.session.get(
