@@ -15,16 +15,17 @@ def basic_example():
 
     try:
         # Send a message (your exact API!)
-        result = contacted.send({
-            'from': 'sender@example.com',
-            'to': 'receiver@example.com',
-            'prompt': 'Generate a personalized welcome email for the user',  # 10+ chars
-            'data': {
+        result = contacted.send(
+            from_email='sender@example.com',
+            to_email='receiver@example.com',
+            subject='Welcome to our platform!',
+            prompt='Generate a personalized welcome email for the user',  # 10+ chars
+            data={
                 'name': 'John Doe',
                 'plan': 'premium',
                 'link': 'https://dashboard.example.com'
             }
-        })
+        )
 
         print('Message sent successfully:', result)
 
@@ -41,34 +42,37 @@ def validation_examples():
     print("Testing validation errors...")
 
     try:
-        contacted.send({
-            'from': 'invalid-email',
-            'to': 'user@example.com',
-            'prompt': 'Generate email'
-        })
+        contacted.send(
+            from_email='invalid-email',
+            to_email='user@example.com',
+            subject='Test Subject',
+            prompt='Generate email'
+        )
     except ValueError as error:
         print('❌ Email validation:', error)
         # "Invalid 'from' email address format"
 
     try:
-        contacted.send({
-            'from': 'sender@example.com',
-            'to': 'receiver@example.com',
-            'prompt': 'short'  # Less than 10 characters
-        })
+        contacted.send(
+            from_email='sender@example.com',
+            to_email='receiver@example.com',
+            subject='Test Subject',
+            prompt='short'  # Less than 10 characters
+        )
     except ValueError as error:
         print('❌ Prompt validation:', error)
         # "Prompt must be at least 10 characters long"
 
     try:
-        contacted.send({
-            'from': 'sender@example.com',
-            'to': 'receiver@example.com',
-            'prompt': 'This is a valid prompt with enough characters',
-            'data': {
+        contacted.send(
+            from_email='sender@example.com',
+            to_email='receiver@example.com',
+            subject='Test Subject',
+            prompt='This is a valid prompt with enough characters',
+            data={
                 'key with space': 'invalid key'  # Keys can't have spaces
             }
-        })
+        )
     except ValueError as error:
         print('❌ Data validation:', error)
         # "Data keys cannot contain spaces"
@@ -85,18 +89,19 @@ def advanced_example():
 
     # Example with comprehensive error handling
     try:
-        result = contacted.send({
-            'from': 'automated@mycompany.com',
-            'to': 'customer@example.com',
-            'prompt': 'Create a personalized onboarding email with account details',
-            'data': {
+        result = contacted.send(
+            from_email='automated@mycompany.com',
+            to_email='customer@example.com',
+            subject='Welcome to your business account',
+            prompt='Create a personalized onboarding email with account details',
+            data={
                 'firstName': 'Sarah',
                 'lastName': 'Johnson',
                 'accountType': 'business',
                 'trialDays': 14,
                 'loginUrl': 'https://app.mycompany.com/login'
             }
-        })
+        )
 
         print(f"✅ Email queued successfully!")
         print(f"   ID: {result.get('id')}")
@@ -112,6 +117,68 @@ def advanced_example():
             print(f"❌ Network Error: {error_msg}")
 
 
+def sending_profile_example():
+    """Example using sending profiles"""
+    contacted = ContactedAI(api_key=os.getenv('CONTACTED_API_KEY'))
+
+    try:
+        result = contacted.send(
+            from_email='marketing@mycompany.com',
+            to_email='customer@example.com',
+            subject='New Product Launch Announcement',
+            prompt='Create an exciting product launch email with key features',
+            sending_profile='marketing-profile-id',  # Optional sending profile
+            data={
+                'customerName': 'Alex Chen',
+                'productName': 'Pro Dashboard',
+                'launchDate': 'June 15th',
+                'earlyBirdDiscount': '20%'
+            }
+        )
+
+        print(f"✅ Marketing email sent with profile!")
+        print(f"   ID: {result.get('id')}")
+
+    except ValueError as error:
+        print(f"❌ Error: {error}")
+
+
+def message_tracking_example():
+    """Example showing message status tracking"""
+    contacted = ContactedAI(api_key=os.getenv('CONTACTED_API_KEY'))
+
+    try:
+        # Send a message
+        result = contacted.send(
+            from_email='orders@mystore.com',
+            to_email='customer@example.com',
+            subject='Order Confirmation #12345',
+            prompt='Generate order confirmation with shipping details',
+            data={
+                'orderNumber': '12345',
+                'total': '$99.99',
+                'shippingDate': '2024-06-10',
+                'trackingUrl': 'https://shipping.com/track/12345'
+            }
+        )
+
+        message_id = result['id']
+        print(f"✅ Order confirmation sent: {message_id}")
+
+        # Check message status
+        status = contacted.get_message_status(message_id)
+        print(f"📧 Message Status: {status['status']}")
+        print(f"   Created: {status['created_at']}")
+
+        if status['status'] == 'sent':
+            print(f"   Delivered: {status['sent_at']}")
+        elif status['status'] == 'failed':
+            print(f"   Error: {status.get('error_reason', 'Unknown error')}")
+
+    except ValueError as error:
+        print(f"❌ Error: {error}")
+
+
 if __name__ == '__main__':
     print("=== ContactedAI Python SDK Examples ===\n")
 
@@ -123,3 +190,9 @@ if __name__ == '__main__':
 
     print("\n3. Advanced Example:")
     advanced_example()
+
+    print("\n4. Sending Profile Example:")
+    sending_profile_example()
+
+    print("\n5. Message Tracking Example:")
+    message_tracking_example()

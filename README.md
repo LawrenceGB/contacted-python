@@ -26,22 +26,19 @@ from contacted import ContactedAI
 contacted = ContactedAI(api_key='your-api-key-here')
 
 # Send a message
-result = contacted.send({
-    'subject': 'Thank you for signing up with Example',
-    'from': 'sender@example.com',
-    'to': 'receiver@example.com',
-    'prompt': 'Generate a personalized welcome email',
-    'data': {
+result = contacted.send(
+    subject='Thank you for signing up with Example',
+    from_email='sender@example.com',
+    to_email='receiver@example.com',
+    prompt='Generate a personalized welcome email',
+    data={
         'name': 'John Doe',
         'link': 'https://example.com'
     }
-})
+)
 
 print('Message sent:', result)
 
-# Check message status
-status = contacted.get_message_status(result['id'])
-print('Message status:', status['status'])
 ```
 
 ## Type Hints Support
@@ -50,19 +47,19 @@ The SDK includes comprehensive type hints for better IDE support:
 
 ```python
 from contacted import ContactedAI
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 contacted = ContactedAI(api_key='your-api-key-here')
 
-options: Dict[str, Any] = {
-    'subject': 'Email subject line',
-    'from': 'sender@example.com',
-    'to': 'receiver@example.com',
-    'prompt': 'Generate email content',
-    'data': {'name': 'John'}
-}
-
-result = contacted.send(options)
+# All parameters are strongly typed
+result = contacted.send(
+    subject="Email subject line",
+    from_email="sender@example.com",
+    to_email="receiver@example.com", 
+    prompt="Generate email content",
+    data={'name': 'John'},
+    sending_profile="profile-id"  # Optional
+)
 ```
 
 ## API Reference
@@ -76,16 +73,17 @@ Creates a new ContactedAI client instance.
 - `base_url` (str, optional): Custom API base URL
 - `timeout` (int, optional): Request timeout in seconds (default: 30)
 
-### `contacted.send(options)`
+### `contacted.send(subject, from_email, to_email, prompt, data=None, sending_profile=None)`
 
 Send a message through the ContactedAI API.
 
 **Parameters:**
-- `subject` (string, required): Email subject (2-256 characters)
-- `from` (str, required): Valid sender email address
-- `to` (str, required): Valid receiver email address
+- `subject` (str, required): Email subject (2-256 characters)
+- `from_email` (str, required): Valid sender email address
+- `to_email` (str, required): Valid receiver email address
 - `prompt` (str, required): AI prompt (10-250 characters)
 - `data` (dict, optional): Additional data for personalization
+- `sending_profile` (str, optional): Sending profile ID
 
 **Validation Rules:**
 - Subject must be 2-256 characters
@@ -128,12 +126,12 @@ The SDK provides detailed error messages for validation and API errors:
 
 ```python
 try:
-    contacted.send({
-        'subject': 'test error',
-        'from': 'invalid-email',
-        'to': 'user@example.com',
-        'prompt': 'short'
-    })
+    contacted.send(
+        subject='test error',
+        from_email='invalid-email',
+        to_email='user@example.com',
+        prompt='short'
+    )
 except ValueError as e:
     print(f'Error: {e}')
     # "Invalid 'from' email address format"
@@ -148,17 +146,17 @@ import os
 
 contacted = ContactedAI(api_key=os.getenv('CONTACTED_API_KEY'))
 
-result = contacted.send({
-    'subject': 'A warm welcome from my service',
-    'from': 'noreply@myapp.com',
-    'to': 'user@example.com', 
-    'prompt': 'Create a welcome email for a new premium user',
-    'data': {
+result = contacted.send(
+    subject='A warm welcome from my service',
+    from_email='noreply@myapp.com',
+    to_email='user@example.com', 
+    prompt='Create a welcome email for a new premium user',
+    data={
         'username': 'john_doe',
         'plan': 'premium',
         'dashboard_url': 'https://app.myservice.com'
     }
-})
+)
 ```
 
 ### Send and Track Message Status
@@ -169,17 +167,17 @@ import time
 contacted = ContactedAI(api_key='your-api-key-here')
 
 # Send message
-result = contacted.send({
-    'subject': 'Your order confirmation',
-    'from': 'orders@mystore.com',
-    'to': 'customer@example.com',
-    'prompt': 'Generate an order confirmation email',
-    'data': {
+result = contacted.send(
+    subject='Your order confirmation',
+    from_email='orders@mystore.com',
+    to_email='customer@example.com',
+    prompt='Generate an order confirmation email',
+    data={
         'order_id': '12345',
         'total': '$99.99',
         'delivery_date': '2024-01-20'
     }
-})
+)
 
 message_id = result['id']
 print(f'✅ Message queued with ID: {message_id}')
@@ -203,7 +201,13 @@ elif status['status'] == 'failed':
 ### With Error Handling
 ```python
 try:
-    result = contacted.send(options)
+    result = contacted.send(
+        subject='Order confirmation',
+        from_email='orders@mystore.com',
+        to_email='customer@example.com',
+        prompt='Generate order confirmation with tracking info',
+        data={'order_id': '12345'}
+    )
     print(f'✅ Email sent successfully: {result["id"]}')
     
     # Check status
@@ -228,6 +232,14 @@ from contacted import ContactedAI
 contacted = ContactedAI(
     api_key=os.getenv('CONTACTED_API_KEY'),
     timeout=60  # Custom timeout
+)
+
+result = contacted.send(
+    subject='Weekly newsletter',
+    from_email='newsletter@mycompany.com',
+    to_email='subscriber@example.com',
+    prompt='Create an engaging weekly newsletter',
+    data={'subscriber_name': 'Alex'}
 )
 ```
 

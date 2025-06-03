@@ -33,22 +33,23 @@ class ContactedAI:
         # Setup session with default headers
         self.session = requests.Session()
         self.session.headers.update({
-            'Authorization': f'Bearer ${self.api_key}',
+            'Authorization': f'Bearer {self.api_key}',
             'Content-Type': 'application/json',
             'User-Agent': 'contacted-python/1.0.0'
         })
 
-    def send(self, options: Dict[str, Any]) -> Dict[str, Any]:
+    def send(self, subject: str, from_email: str, to_email: str, prompt: str,
+             data: Optional[Dict[str, Any]] = None, sending_profile: Optional[str] = None) -> Dict[str, Any]:
         """
         Send a message through the ContactedAI API
 
         Args:
-            options (dict): Send options containing:
-                - subject (str): Email subject line (2-256 characters)
-                - from (str): Sender email address
-                - to (str): Receiver email address
-                - prompt (str): AI prompt (10-250 characters)
-                - data (dict, optional): Additional data for personalization
+            subject (str): Email subject line (2-256 characters)
+            from_email (str): Sender email address
+            to_email (str): Receiver email address
+            prompt (str): AI prompt (10-250 characters)
+            data (dict, optional): Additional data for personalization
+            sending_profile (str, optional): Sending profile ID
 
         Returns:
             dict: API response
@@ -57,16 +58,29 @@ class ContactedAI:
             ValueError: If validation fails
             requests.RequestException: If API request fails
         """
+        # Create options dict for validation
+        options = {
+            'subject': subject,
+            'from': from_email,
+            'to': to_email,
+            'prompt': prompt,
+            'data': data or {}
+        }
+
         # Validate input before making API call
         validate_send_options(options)
 
         payload = {
-            'subject': options['subject'],
-            'from': options['from'],
-            'to': options['to'],
-            'prompt': options['prompt'],
-            'data': options.get('data', {})
+            'subject': subject,
+            'from': from_email,
+            'to': to_email,
+            'prompt': prompt,
+            'data': data or {}
         }
+
+        # Add sending_profile if provided
+        if sending_profile:
+            payload['sendingProfile'] = sending_profile
 
         try:
             response = self.session.post(
