@@ -124,8 +124,8 @@ class TestPromptValidation:
         with pytest.raises(ValueError, match='Prompt must be at least 10 characters long'):
             validate_prompt('short')
 
-        long_prompt = 'a' * 251
-        with pytest.raises(ValueError, match='Prompt must be no more than 250 characters long'):
+        long_prompt = 'a' * 2001
+        with pytest.raises(ValueError, match='Prompt must be no more than 2000 characters long'):
             validate_prompt(long_prompt)
 
     def test_should_accept_valid_prompts(self):
@@ -497,7 +497,7 @@ class TestContactedAISendMethod:
                 'subject': 'a' * 256,  # maximum length
                 'from_email': 'test@example.com',
                 'to_email': 'user@domain.org',
-                'prompt': 'a' * 250,  # maximum length
+                'prompt': 'a' * 2000,  # maximum length
                 'data': {'key': 'value'}
             },
             {

@@ -97,12 +97,12 @@ def validate_prompt(prompt: Any) -> None:
     if not isinstance(prompt, str):
         raise ValueError("Prompt must be a string")
 
-    # Check length (10-250 characters)
+    # Check length (10-2000 characters)
     if len(prompt) < 10:
         raise ValueError("Prompt must be at least 10 characters long")
 
-    if len(prompt) > 250:
-        raise ValueError("Prompt must be no more than 250 characters long")
+    if len(prompt) > 2000:
+        raise ValueError("Prompt must be no more than 2000 characters long")
 
 
 def validate_data(data: Any) -> None:

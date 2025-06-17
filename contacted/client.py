@@ -47,7 +47,7 @@ class ContactedAI:
             subject (str): Email subject line (2-256 characters)
             from_email (str): Sender email address
             to_email (str): Receiver email address
-            prompt (str): AI prompt (10-250 characters)
+            prompt (str): AI prompt (10-2000 characters)
             data (dict, optional): Additional data for personalization
             sending_profile (str, optional): Sending profile ID
 
